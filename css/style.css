@@ -1,0 +1,57 @@
+:root {
+    --sky: rgb(65, 3, 78)
+}
+
+body {
+    background-color: black;
+    font-family: Arial, Helvetica, sans-serif;
+    color: white;
+    text-align: center;
+}
+
+table {
+    margin: 20px auto;
+    border: 1px solid;
+    /* border-collapse: collapse; */
+}
+
+
+.cell {
+    width: 30px;
+    height: 30px;
+    text-align: center;
+    transition: 2s;
+    transition-timing-function: ease-in;
+    background-color: var(--sky);
+
+    /* border: 1px solid var(--sky); */
+    /* border: none; */
+    /* border-color: white; */
+}
+
+*/
+/* 
+.cell img {
+    width: 30px;
+    height: auto;
+} */
+
+/* 
+.ball {
+    transition: 0.5sec;
+} */
+
+.sky {
+    /* why??????
+    doing it in cell */
+    background-color: rgb(116, 110, 117);
+}
+
+.earth {
+    background-color: rgb(9, 224, 152);
+}
+
+/* 
+.hidden {
+    display: none;
+} */
