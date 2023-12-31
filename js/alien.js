@@ -33,7 +33,7 @@ function handleAlienHit(pos) {
 
 function shiftBoardRight(board, fromI, toI) {
     for (var i = 0; i < ALIEN_ROW_COUNT; i++) {
-        for (var j = toI; j >= fromI; j--) {
+        for (var j = toI; j >= fromI - 1; j--) {
             // console.log(i)
             // console.log(j)
             // if (j - 1 < 0) {
@@ -54,7 +54,7 @@ function shiftBoardRight(board, fromI, toI) {
 }
 function shiftBoardLeft(board, fromI, toI) {
     for (var i = 0; i < ALIEN_ROW_COUNT; i++) {
-        for (var j = fromI; j < toI; j++) {
+        for (var j = fromI; j <= toI; j++) {
             // console.log(i)
             // console.log(j)
             // if (j - 1 < 0) {
@@ -75,7 +75,18 @@ function shiftBoardLeft(board, fromI, toI) {
 }
 
 function shiftBoardDown(board, fromI, toI) {
+    for (var i = toI; i > fromI - 1; i--) {
+        for (var j = 0; j < board.length; j++) {
+            var nextPos = { i: i + 1, j: j }
 
+            updateCell(nextPos, board[i][j].gameObject)
+
+            var pos = { i: i, j: j }
+                // console.log(pos)
+                // console.log(board[i][j])
+                /*if (i !== -1)*/ updateCell(pos, null)
+        }
+    }
 }
 
 // runs the interval for moving aliens side to side and down // it re-renders the board every time // when the aliens are reaching the hero row - interval stops 
