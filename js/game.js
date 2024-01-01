@@ -11,7 +11,7 @@ const EARTH = 'EARTH'
 
 // Matrix of cell objects. e.g.: {type: SKY, gameObject: ALIEN} 
 var gBoard = []
-var gGame = { isOn: false, alienCount: 0, score: 0 }
+var gGame = { isOn: true, isStart: true, alienCount: ALIEN_ROW_LENGTH * ALIEN_ROW_COUNT, score: 0 }
 
 // Called when game loads 
 function init() {
@@ -19,6 +19,7 @@ function init() {
 
     // createHero(gBoard)
     renderBoard(gBoard)
+    if (gGame.isOn === true) gIntervalAliens = setInterval(moveAliens, ALIEN_SPEED)
 }
 
 // Create and returns the board with aliens on top, ground at bottom // use the functions: createCell, createHero, createAliens 
@@ -33,7 +34,7 @@ function createBoard(size) {
             } else gBoard[i].push(createCell())
         }
     }
-    console.table(gBoard)
+    // console.table(gBoard)
 }
 
 // Render the board as a <table> to the page 
@@ -75,8 +76,22 @@ function createCell(gameObject = null, type = SKY) {
 function updateCell(pos, gameObject = null) {
     gBoard[pos.i][pos.j].gameObject = gameObject
 
-    //WHAT?? HOW DOES IT RENDER IF THE RENDERING IS COMMENTED?
-
     var elCell = getElCell(pos)
     elCell.innerHTML = gameObject || ''
+}
+
+
+function checkEndGame(alienCount, bottomRowIdx) {
+    if (alienCount === 0) {
+        gameOver('win')
+
+    } else if (bottomRowIdx === gHero.pos.i) gameOver('lose')
+
+}
+
+function gameOver(winOrLose) {
+    clearInterval(gIntervalAliens)
+    gGame.isOn = false
+    if (winOrLose === 'win') { console.log('Win!') }
+    else if (winOrLose === 'lose') { console.log('Lose!') }
 }

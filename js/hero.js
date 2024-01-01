@@ -13,7 +13,8 @@ function createHero(board) {
 
 // Handle game keys 
 function onKeyDown(ev) {
-    switch (event.key) {
+    if (gGame.isOn === false) return
+    switch (ev.key) {
         case 'ArrowRight':
             moveHero(1)
             break;
@@ -22,8 +23,8 @@ function onKeyDown(ev) {
             moveHero(-1)
             break;
 
-        case 's':
-            if (!gHero.isShoot) shoot(500)
+        case ' ':
+            if (!gHero.isShoot) shoot(LASER_SPEED)
             break;
 
         default:
@@ -40,12 +41,12 @@ function moveHero(dir) {
     updateCell(gHero.pos, HERO)
 
 }
-
+var gisLaserFreeze = false
 // Sets an interval for shutting (blinking) the laser up towards aliens 
 function shoot(speed) {
     gHero.isShoot = true
 
-    gHero.laserPos.i = gHero.pos.i
+    gHero.laserPos.i = gHero.pos.i - 1
     gHero.laserPos.j = gHero.pos.j
     shootInterval = setInterval(blinkLaser, speed, gHero.laserPos)
     // blinkLaser(gHero.laserPos)
@@ -54,11 +55,12 @@ function shoot(speed) {
 
 // renders a LASER at specific cell for short time and removes it 
 function blinkLaser(pos) {
+    if (gisLaserFreeze && shootInterval) return
     var prevPos = { i: pos.i + 1, j: pos.j }
-    console.log('pos', pos)
+    // console.log('pos', pos)
 
     if (pos.i < 0) {
-        console.log('first if')
+        console.log('out of range')
         clearInterval(shootInterval)
         gHero.isShoot = false
 
@@ -68,11 +70,11 @@ function blinkLaser(pos) {
         console.log('hero')
         gHero.laserPos.i--
         return
-    } else if (gBoard[pos.i][pos.j].gameObject === ALIEN) {
+    } else if (gBoard[pos.i][pos.j].gameObject === ALIEN || gBoard[pos.i][pos.j].gameObject === 'X') {
         handleAlienHit(pos)
-        gHero.isShoot = false
         return
-    } else if (prevPos.i !== gHero.pos.i) {
+    }
+    else if (prevPos.i !== gHero.pos.i) {
         updateCell(prevPos, null)
     }
 
