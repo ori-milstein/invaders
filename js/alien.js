@@ -1,10 +1,10 @@
 'use strict'
 
-const ALIEN_SPEED = 500
+const ALIEN_SPEED = 1000
 var gIntervalAliens
 var firstAlien = /*gBoard.length - ALIEN_ROW_LENGTH*/ 6
 var lastAlien = /*gBoard.length - 1*/13
-
+var unHit = false
 var gDir = 'left'
 // The following two variables represent the part of the matrix (some rows) // that we should shift (left, right, and bottom) // We need to update those when: // (1) shifting down and (2) last alien was cleared from row 
 var gAliensTopRowIdx = 0
@@ -21,8 +21,17 @@ function createAliens(board) {
 }
 
 function handleAlienHit(pos) {
-    gHero.isShoot = false
     const prevPos = { i: pos.i + 1, j: pos.j }
+
+    if (unHit) {
+        clearInterval(shootInterval)
+        updateCell(prevPos)
+        gHero.isShoot = false
+        return
+    }
+
+    gHero.isShoot = false
+
 
     // console.log(`alien at ${pos.i}, ${pos.j}`)
 
@@ -48,17 +57,19 @@ function updateRowsCols(pos) {
     var isAlien
     if (pos.i === gAliensTopRowIdx && pos.j === firstAlien) {
         firstAlien++
-        // console.log('firstAlien', firstAlien)
+        console.log('firstAlien', firstAlien)
     } else if (pos.i === gAliensTopRowIdx && pos.j === lastAlien) {
         lastAlien--
-        // console.log('lastAlien', lastAlien)
+        console.log('lastAlien', lastAlien)
     }
 
     for (var j = firstAlien; j <= lastAlien; j++) {
         if (gBoard[gAliensBottomRowIdx][j].gameObject === ALIEN) { isAlien = true } else { isAlien = false }
     }
-    if (!isAlien) gAliensBottomRowIdx--
-
+    if (!isAlien) {
+        gAliensBottomRowIdx--
+        console.log('gAliensBottomRowIdx', gAliensBottomRowIdx)
+    }
 }
 
 function shiftBoardRight(board, fromI, toI) {
@@ -84,13 +95,29 @@ function shiftBoardRight(board, fromI, toI) {
             //     if (isAlein) updateCell(leftPos)
             // }
 
+            // // if (gBoard[pos.i][pos.j].gameObject === ALIEN) {
+            // if (gBoard[nextPos.i][nextPos.j].gameObject === LASER) {
+            //     handleAlienHit(nextPos)
+            //     continue
+            // }
+            // updateCell(nextPos, board[i][j].gameObject)
+            // if (pos.j === fromI) updateCell(pos, null)
+            // // }
+
+
             if (gBoard[pos.i][pos.j].gameObject === ALIEN) {
+                updateCell(nextPos, board[i][j].gameObject)
+                /*if (pos.j === toI)*/ updateCell(pos, null)
+
                 if (gBoard[nextPos.i][nextPos.j].gameObject === LASER) {
                     handleAlienHit(nextPos)
                     continue
                 }
-                updateCell(nextPos, board[i][j].gameObject)
-                updateCell(pos, null)
+
+                if (gBoard[pos.i][pos.j].gameObject === LASER /*|| gBoard[pos.i + 1][pos.j].gameObject === LASER*/) {
+                    unHit = true
+                    continue
+                }
             }
 
             // // console.log(pos)
@@ -116,14 +143,19 @@ function shiftBoardLeft(board, fromI, toI) {
 
 
             if (gBoard[pos.i][pos.j].gameObject === ALIEN) {
+
+                updateCell(nextPos, board[i][j].gameObject)
+            /*if (pos.j === toI)*/ updateCell(pos, null)
+
                 if (gBoard[nextPos.i][nextPos.j].gameObject === LASER) {
                     handleAlienHit(nextPos)
                     continue
                 }
-                updateCell(nextPos, board[i][j].gameObject)
-                updateCell(pos, null)
-            } /*else {
-                updateCell(nextPos)*/
+                if (gBoard[pos.i][pos.j].gameObject === LASER /*|| gBoard[pos.i + 1][pos.j].gameObject === LASER*/) {
+                    unHit = true
+                    continue
+                }
+            }
 
 
 
@@ -148,13 +180,13 @@ function shiftBoardDown(board, fromI, toI) {
 
             // console.log(pos)
             // console.log(board[i][j])
-            if (gBoard[pos.i][pos.j].gameObject === ALIEN) {
-                // if (gBoard[nextPos.i][nextPos.j].gameObject === LASER) {
-                //     handleAlienHit(nextPos)
-                // }
-                updateCell(nextPos, board[i][j].gameObject)
-                updateCell(pos, null)
-            }
+            // if (gBoard[pos.i][pos.j].gameObject === ALIEN) {
+            // if (gBoard[nextPos.i][nextPos.j].gameObject === LASER) {
+            //     handleAlienHit(nextPos)
+            // }
+            updateCell(nextPos, board[i][j].gameObject)
+            if (pos.i === gAliensTopRowIdx) updateCell(pos, null)
+            // }
 
         }
     }
