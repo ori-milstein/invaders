@@ -11,15 +11,36 @@ const EARTH = 'EARTH'
 
 // Matrix of cell objects. e.g.: {type: SKY, gameObject: ALIEN} 
 var gBoard = []
-var gGame = { isOn: true, isStart: true, alienCount: ALIEN_ROW_LENGTH * ALIEN_ROW_COUNT, score: 0 }
+var gGame = { isOn: false, isStart: false, alienCount: ALIEN_ROW_LENGTH * ALIEN_ROW_COUNT, score: 0, isWin: false, }
 
 // Called when game loads 
 function init() {
     createBoard(BOARD_SIZE)
-
-    // createHero(gBoard)
     renderBoard(gBoard)
-    if (gGame.isOn === true) gIntervalAliens = setInterval(moveAliens, ALIEN_SPEED)
+}
+
+function playGame() {
+    if (!gGame.isStart && !gGame.isOn) {
+        gIntervalAliens = setInterval(moveAliens, ALIEN_SPEED)
+        gGame.isOn = true
+        gGame.isStart = true
+        renderPanel()
+    }
+}
+
+function restart() {
+    gBoard = []
+    const elBoard = document.querySelector('.board')
+    elBoard.innerHTML = ''
+
+    gGame = { isOn: false, isStart: false, alienCount: ALIEN_ROW_LENGTH * ALIEN_ROW_COUNT, score: 0 }
+    firstAlien = /*gBoard.length - ALIEN_ROW_LENGTH*/ 6
+    lastAlien = /*gBoard.length - 1*/13
+    unHit = false
+    gDir = 'left'
+
+    init()
+    playGame()
 }
 
 // Create and returns the board with aliens on top, ground at bottom // use the functions: createCell, createHero, createAliens 
@@ -34,14 +55,13 @@ function createBoard(size) {
             } else gBoard[i].push(createCell())
         }
     }
-    // console.table(gBoard)
 }
 
 // Render the board as a <table> to the page 
 function renderBoard(board) {
-
     const elBoard = document.querySelector('.board')
     var strHTML = ''
+
     for (var i = 0; i < board.length; i++) {
         strHTML += '<tr>\n'
         for (var j = 0; j < board[0].length; j++) {
@@ -53,8 +73,6 @@ function renderBoard(board) {
 
             if (currCell.gameObject === ALIEN) {
                 strHTML += ALIEN
-                // } else if (currCell.gameObject === HERO) {
-                //     strHTML += HERO
             }
 
             strHTML += '</td>\n'
@@ -64,7 +82,22 @@ function renderBoard(board) {
     elBoard.innerHTML = strHTML
 
     createHero()
-    // createAliens()
+}
+
+
+function renderPanel() {
+    document.querySelector('h2').setAttribute('hidden', '')
+    document.querySelector('.modal').classList.add('hide')
+
+    document.querySelector('h3').removeAttribute('hidden')
+    document.querySelector('h3 span').innerText = '0'
+}
+
+function updateScore(diff = 0) {
+    gGame.score += diff
+
+    const score = document.querySelector('h3 span')
+    score.innerText = `${gGame.score}`
 }
 
 // Returns a new cell object. e.g.: {type: SKY, gameObject: ALIEN} 
@@ -82,16 +115,25 @@ function updateCell(pos, gameObject = null) {
 
 
 function checkEndGame(alienCount, bottomRowIdx) {
-    if (alienCount === 0) {
-        gameOver('win')
-
-    } else if (bottomRowIdx === gHero.pos.i) gameOver('lose')
-
+    if (alienCount === 0) gameOver(true)
+    else if (bottomRowIdx === gHero.pos.i) gameOver(false)
 }
 
-function gameOver(winOrLose) {
+function gameOver(isWin) {
     clearInterval(gIntervalAliens)
     gGame.isOn = false
-    if (winOrLose === 'win') { console.log('Win!') }
-    else if (winOrLose === 'lose') { console.log('Lose!') }
+    gGame.isWin = isWin
+
+    if (isWin) console.log('Win!')
+    else console.log('Lose!')
+
+    renderModal(isWin)
+}
+
+function renderModal(isWin) {
+    const modalText = (isWin) ? `Victorious!` : `You Lose!`
+
+    document.querySelector('.modal').innerHTML = `${modalText} <button class="button" onclick="restart()">Play Again</button>`
+
+    document.querySelector('.modal').classList.remove('hide')
 }
