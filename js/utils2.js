@@ -24,12 +24,12 @@ function getRandomColor() {
     return color;
 }
 
-function getRandomEmptyCellPosition() {
+function getRandomEmptyCellPosition(rowLength, colLength) {
     const emptyCells = []
-    for (var i = 0; i < gBoard.length; i++) {
-        for (var j = 0; j < gBoard[i].length; j++) {
+    for (var i = 0; i < rowLength; i++) {
+        for (var j = 0; j < colLength; j++) {
             const cell = gBoard[i][j]
-            if (!cell.gameElement && cell.type === FLOOR) {
+            if (cell.gameObject === null && cell.type === SKY) {
                 emptyCells.push({ i, j })
             }
         }
@@ -105,4 +105,16 @@ function stopTimer() {
 }
 function getElCell(pos) {
     return document.querySelector(`[data-i='${pos.i}'][data-j='${pos.j}']`)
+}
+
+document.onkeydown = function (evt) {
+    evt = evt || window.event;
+    var keyCode = evt.keyCode;
+    if ((keyCode >= 37 && keyCode <= 40) || keyCode === 32) {
+        return false;
+    }
+}
+
+function playSound(sound) {
+    new Audio(`sound/${sound}.mp3`).play()
 }

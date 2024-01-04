@@ -3,11 +3,13 @@
 const BOARD_SIZE = 14
 const ALIEN_ROW_LENGTH = 8
 const ALIEN_ROW_COUNT = 3
-const HERO = '♆'
-const ALIEN = '👽'
-const LASER = '⤊'
+const HERO = 'HERO'
+const ALIEN = 'ALIEN'
 const SKY = 'SKY'
 const EARTH = 'EARTH'
+const CANDY = 'CANDY'
+
+var gIntervalCandy
 
 // Matrix of cell objects. e.g.: {type: SKY, gameObject: ALIEN} 
 var gBoard = []
@@ -22,6 +24,7 @@ function init() {
 function playGame() {
     if (!gGame.isStart && !gGame.isOn) {
         gIntervalAliens = setInterval(moveAliens, ALIEN_SPEED)
+        gIntervalCandy = setInterval(addCandy, 10000)
         gGame.isOn = true
         gGame.isStart = true
         renderPanel()
@@ -72,7 +75,7 @@ function renderBoard(board) {
             strHTML += `\t<td class="cell ${cellClass}" data-i="${i}" data-j="${j}">`
 
             if (currCell.gameObject === ALIEN) {
-                strHTML += ALIEN
+                strHTML += `<img src="img/ALIEN.png">`
             }
 
             strHTML += '</td>\n'
@@ -102,17 +105,23 @@ function updateScore(diff = 0) {
 
 // Returns a new cell object. e.g.: {type: SKY, gameObject: ALIEN} 
 function createCell(gameObject = null, type = SKY) {
-    return { type: type, gameObject: gameObject }
+    return { type: type, gameObject: gameObject, img: false }
 }
 
 // position such as: {i: 2, j: 7} 
-function updateCell(pos, gameObject = null) {
+function updateCell(pos, gameObject = null, img = false) {
+
     gBoard[pos.i][pos.j].gameObject = gameObject
 
     var elCell = getElCell(pos)
-    elCell.innerHTML = gameObject || ''
+    elCell.innerHTML = /*gameObject*/ getObjHtml(gameObject, img) || ''
 }
 
+function getObjHtml(object, img) {
+    if (img) {
+        return `<img src="img/${object}.png">`
+    } else return object
+}
 
 function checkEndGame(alienCount, bottomRowIdx) {
     if (alienCount === 0) gameOver(true)
@@ -121,6 +130,7 @@ function checkEndGame(alienCount, bottomRowIdx) {
 
 function gameOver(isWin) {
     clearInterval(gIntervalAliens)
+    clearInterval(gIntervalCandy)
     gGame.isOn = false
     gGame.isWin = isWin
 
@@ -136,4 +146,29 @@ function renderModal(isWin) {
     document.querySelector('.modal').innerHTML = `${modalText} <button class="button" onclick="restart()">Play Again</button>`
 
     document.querySelector('.modal').classList.remove('hide')
+}
+
+
+function addCandy() {
+    const cellPos = getRandomEmptyCellPosition(1, gBoard.length)
+
+    updateCell(cellPos, CANDY, true)
+    setTimeout(updateCell, 5000, cellPos)
+}
+
+function handleCandyHit(pos) {
+    playSound('CANDY')
+    const prevPos = { i: pos.i + 1, j: pos.j }
+
+    console.log(`CANDY HIT! at ${pos.i}, ${pos.j}`)
+
+    updateCell(pos)
+
+    endShoot(prevPos)
+
+    updateScore(50)
+    console.log('score', gGame.score)
+
+    gIsAlienFreeze = true
+    setTimeout(() => { gIsAlienFreeze = false }, 5000)
 }

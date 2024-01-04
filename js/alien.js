@@ -13,24 +13,19 @@ var gAliensBottomRowIdx = ALIEN_ROW_COUNT - 1
 
 var gIsAlienFreeze = false
 
-function createAliens(board) {
-}
+// function createAliens(cellPos) {
+//     updateCell(cellPos, ALIEN, true)
+// }
 
 function handleAlienHit(pos) {
-    gHero.isShoot = false
-    gBoard[pos.i][pos.j].isExploded = true
+    playSound('SHOT')
     const prevPos = { i: pos.i + 1, j: pos.j }
 
     console.log(`HIT! at ${pos.i}, ${pos.j}`)
 
-    // updateCell(pos, 'X')
-
     updateCell(pos)
-    if (gBoard[prevPos.i][prevPos.j].gameObject === LASER) {
-        updateCell(prevPos)
-    }
 
-    clearInterval(shootInterval)
+    endShoot(prevPos)
     gGame.alienCount--
     console.log(`ggame.aliencount ${gGame.alienCount}`)
     updateScore(10)
@@ -78,12 +73,12 @@ function shiftBoardRight(board, fromI, toI) {
             if (board[pos.i][pos.j].gameObject === ALIEN) {
                 updateCell(pos, null)
 
-                if (board[nextPos.i][nextPos.j].gameObject === LASER) {
+                if (board[nextPos.i][nextPos.j].gameObject === laser) {
                     handleAlienHit(nextPos)
                     continue
                 }
 
-                updateCell(nextPos, ALIEN)
+                updateCell(nextPos, ALIEN, true)
             }
         }
     }
@@ -100,12 +95,12 @@ function shiftBoardLeft(board, fromI, toI) {
             if (board[pos.i][pos.j].gameObject === ALIEN) {
                 updateCell(pos, null)
 
-                if (board[nextPos.i][nextPos.j].gameObject === LASER) {
+                if (board[nextPos.i][nextPos.j].gameObject === laser) {
                     handleAlienHit(nextPos)
                     continue
                 }
 
-                updateCell(nextPos, ALIEN)
+                updateCell(nextPos, ALIEN, true)
             }
         }
     }
@@ -121,12 +116,12 @@ function shiftBoardDown(board, fromI, toI) {
             if (board[pos.i][pos.j].gameObject === ALIEN) {
                 updateCell(pos, null)
 
-                if (board[nextPos.i][nextPos.j].gameObject === LASER) {
+                if (board[nextPos.i][nextPos.j].gameObject === laser) {
                     handleAlienHit(nextPos)
                     continue
                 }
 
-                updateCell(nextPos, ALIEN)
+                updateCell(nextPos, ALIEN, true)
             }
         }
     }
