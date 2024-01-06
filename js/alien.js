@@ -2,10 +2,8 @@
 
 const ALIEN_SPEED = 500
 var gIntervalAliens
-var firstAlien = /*gBoard.length - ALIEN_ROW_LENGTH*/ 6
-var lastAlien = /*gBoard.length - 1*/13
-var unHit = false
-var gDir = 'left'
+var gAliensLeftColIdx = BOARD_SIZE - ALIEN_ROW_LENGTH
+var gAliensRightColIdx = BOARD_SIZE - 1
 
 // The following two variables represent the part of the matrix (some rows) // that we should shift (left, right, and bottom) // We need to update those when: // (1) shifting down and (2) last alien was cleared from row 
 var gAliensTopRowIdx = 0
@@ -13,11 +11,12 @@ var gAliensBottomRowIdx = ALIEN_ROW_COUNT - 1
 
 var gIsAlienFreeze = false
 
-// function createAliens(cellPos) {
-//     updateCell(cellPos, ALIEN, true)
-// }
 
 function handleAlienHit(pos) {
+    if (gGame.isOn === false) {
+        console.log('tryinh to remove alein but game over')
+        return
+    }
     playSound('SHOT')
     const prevPos = { i: pos.i + 1, j: pos.j }
 
@@ -52,13 +51,13 @@ function updateRowsCols() {
             }
         }
     }
-    firstAlien = leftColIdx
-    lastAlien = rightColIdx
+    gAliensLeftColIdx = leftColIdx
+    gAliensRightColIdx = rightColIdx
     gAliensTopRowIdx = topRowIdx
     gAliensBottomRowIdx = botRowIdx
 
-    console.log('firstAlien', firstAlien)
-    console.log('lastAlien', lastAlien)
+    console.log('firstAlien', gAliensLeftColIdx)
+    console.log('lastAlien', gAliensRightColIdx)
     console.log('gAliensTopRowIdx', gAliensTopRowIdx)
     console.log('gAliensBottomRowIdx', gAliensBottomRowIdx)
 }
@@ -130,16 +129,18 @@ function shiftBoardDown(board, fromI, toI) {
 }
 
 // runs the interval for moving aliens side to side and down // it re-renders the board every time // when the aliens are reaching the hero row - interval stops 
-function moveAliens(dir = gDir) {
+function moveAliens(isDirLeft = gGame.isDirLeft) {
     if (gIsAlienFreeze || gGame.ison === false) return
 
-    if (firstAlien === 0 && dir === 'left' || dir === 'right' && lastAlien === gBoard[0].length - 1) {
-        shiftBoardDown(gBoard, firstAlien, lastAlien)
-
-        if (dir === 'left') gDir = 'right'
-        else if (dir === 'right') gDir = 'left'
+    if (gAliensLeftColIdx === 0 && isDirLeft ||
+        !isDirLeft && gAliensRightColIdx === gBoard[0].length - 1) {
+        // checkEndGame(gGame.alienCount, gAliensBottomRowIdx)
+        // if (!gGame.isOn) return
+        shiftBoardDown(gBoard, gAliensLeftColIdx, gAliensRightColIdx)
+        gGame.isDirLeft = !gGame.isDirLeft
     }
-    else if (dir === 'left') { shiftBoardLeft(gBoard, firstAlien, lastAlien) } else if (dir === 'right') { shiftBoardRight(gBoard, firstAlien, lastAlien) }
+    else if (isDirLeft) shiftBoardLeft(gBoard, gAliensLeftColIdx, gAliensRightColIdx)
+    else shiftBoardRight(gBoard, gAliensLeftColIdx, gAliensRightColIdx)
 }
 
 

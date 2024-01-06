@@ -110,11 +110,13 @@ function getElCell(pos) {
 document.onkeydown = function (evt) {
     evt = evt || window.event;
     var keyCode = evt.keyCode;
-    if ((keyCode >= 37 && keyCode <= 40) || keyCode === 32) {
+    if (/*(keyCode >= 37 && keyCode <= 40) ||*/ keyCode === 32) {
         return false;
     }
 }
 
-function playSound(sound) {
-    new Audio(`sound/${sound}.mp3`).play()
+function playSound(sound, volume = 1) {
+    const aud = new Audio(`sound/${sound}.mp3`)
+    aud.volume = volume
+    aud.play()
 }

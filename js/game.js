@@ -9,6 +9,12 @@ const SKY = 'SKY'
 const EARTH = 'EARTH'
 const CANDY = 'CANDY'
 
+const AudioContext = window.AudioContext || window.webkitAudioContext;
+const audioCtx = new AudioContext();
+const SHOOTSOUND = new Audio(`sound/SHOOT.mp3`)
+SHOOTSOUND.preload = 'auto'
+SHOOTSOUND.volume = 0.5
+
 var gIntervalCandy
 var gTimeoutCandy
 var gTimeoutFreeze
@@ -21,6 +27,7 @@ var gGame = {
     alienCount: ALIEN_ROW_LENGTH * ALIEN_ROW_COUNT,
     score: 0,
     isWin: false,
+    isDirLeft: true,
 }
 
 // Called when game loads 
@@ -30,6 +37,10 @@ function init() {
 }
 
 function playGame() {
+    // playSound('SHOOT', 0.001)
+
+    // SHOOTSOUND.play()
+    // SHOOTSOUND.volume = 0.5
     if (!gGame.isStart && !gGame.isOn) {
         gIntervalAliens = setInterval(moveAliens, ALIEN_SPEED)
         gIntervalCandy = setInterval(addCandy, 10000)
@@ -50,6 +61,7 @@ function restart() {
         alienCount: ALIEN_ROW_LENGTH * ALIEN_ROW_COUNT,
         score: 0,
         isWin: false,
+        isDirLeft: true,
     }
     gHero = {
         pos: { i: 12, j: 5 },
@@ -59,10 +71,8 @@ function restart() {
         fastCount: 3
     }
 
-    firstAlien = /*gBoard.length - ALIEN_ROW_LENGTH*/ 6
-    lastAlien = /*gBoard.length - 1*/13
-    unHit = false
-    gDir = 'left'
+    gAliensLeftColIdx = BOARD_SIZE - ALIEN_ROW_LENGTH
+    gAliensRightColIdx = BOARD_SIZE - 1
 
     gIsAlienFreeze = false
 
@@ -154,13 +164,14 @@ function getObjHtml(object, img) {
 
 function checkEndGame(alienCount, bottomRowIdx) {
     if (alienCount === 0) gameOver(true)
-    else if (bottomRowIdx === gHero.pos.i) gameOver(false)
+    else if (bottomRowIdx === gHero.pos.i /* -1 && lastAlien === 13*/) gameOver(false)
 }
 
 function gameOver(isWin) {
+    gGame.isOn = false
+    console.log('gGame.isOn', gGame.isOn)
     clearInterval(gIntervalAliens)
     clearInterval(gIntervalCandy)
-    gGame.isOn = false
     gGame.isWin = isWin
 
     if (isWin) console.log('Win!')

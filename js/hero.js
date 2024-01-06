@@ -20,7 +20,11 @@ function createHero() {
 
 // Handle game keys 
 function onKeyDown(ev) {
-    if (gGame.isOn === false) return
+    if (gGame.isOn === false) {
+        console.log('trying to press key but game over')
+        console.log('gGame.isOn', gGame.isOn)
+        return
+    }
     switch (ev.key) {
         case 'ArrowRight':
             moveHero(1)
@@ -31,7 +35,7 @@ function onKeyDown(ev) {
             break;
 
         case ' ':
-            if (!gHero.isShoot) shoot(laserSpeed)
+            if (!gHero.isShoot && gGame.isOn) shoot(laserSpeed)
             break;
         case 'n':
             if (gHero.isShoot) {
@@ -59,7 +63,11 @@ function moveHero(dir) {
 
 // Sets an interval for shutting (blinking) the laser up towards aliens 
 function shoot(speed, /*laserPosI = gHero.laserPos.i - 1, laserPosJ = gHero.laserPos.j*/) {
-    if (!gHero.laserFast) playSound('SHOOT')
+    if (gGame.isOn === false) {
+        console.log('trying to shoot but cant')
+        return
+    }
+    if (!gHero.laserFast) SHOOTSOUND.play()
     else playSound('FAST')
     gHero.isShoot = true
 
@@ -96,7 +104,7 @@ function blinkLaser(pos) {
         handleCandyHit(pos)
         return
     }
-    else if (/*gHero.pos.i !== prevPos.i*/ prevGameObject !== HERO) {
+    else if (prevGameObject !== HERO) {
         updateCell(prevPos)
     }
 
@@ -104,20 +112,21 @@ function blinkLaser(pos) {
     gHero.laserPos.i--
 }
 
-function endShoot(prevPos) {
+function endShoot(pos) {
     clearInterval(shootInterval)
     gHero.isShoot = false
     if (gHero.laserFast === true) fasterLaser(false)
 
-    if (gBoard[prevPos.i][prevPos.j].gameObject === '^'
-        || gBoard[prevPos.i][prevPos.j].gameObject === '⤊') {
-        updateCell(prevPos)
+    if (gBoard[pos.i][pos.j].gameObject === '^'
+        || gBoard[pos.i][pos.j].gameObject === '⤊') {
+        updateCell(pos)
     }
 }
 
 function blowUpNegs(rowIdx, colIdx, mat) {
     const laserPos = { i: rowIdx, j: colIdx }
-    if (gHero.pos.i === laserPos.i) return
+    console.log('laserPos', laserPos)
+    if (gHero.pos.i === laserPos.i) console.log('hero is laser')
 
     for (var i = rowIdx - 1; i <= rowIdx + 1; i++) {
         if (i < 0 || i >= mat.length) continue
@@ -129,7 +138,8 @@ function blowUpNegs(rowIdx, colIdx, mat) {
 
             if (mat[i][j].gameObject === ALIEN) {
                 handleAlienHit(currNegPos)
-                updateCell(laserPos)
+                // updateCell(laserPos)
+                endShoot(laserPos)
             }
             else continue
         }

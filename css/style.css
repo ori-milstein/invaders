@@ -14,7 +14,7 @@ table {
     margin: 20px auto;
     border: 1px solid;
     border-collapse: collapse;
-    background-image: url(/img/STARS.jpg);
+    background-image: url(../img/STARS.jpg);
     background-size: cover;
 }
 
