@@ -10,10 +10,18 @@ const EARTH = 'EARTH'
 const CANDY = 'CANDY'
 
 var gIntervalCandy
+var gTimeoutCandy
+var gTimeoutFreeze
 
 // Matrix of cell objects. e.g.: {type: SKY, gameObject: ALIEN} 
 var gBoard = []
-var gGame = { isOn: false, isStart: false, alienCount: ALIEN_ROW_LENGTH * ALIEN_ROW_COUNT, score: 0, isWin: false, }
+var gGame = {
+    isOn: false,
+    isStart: false,
+    alienCount: ALIEN_ROW_LENGTH * ALIEN_ROW_COUNT,
+    score: 0,
+    isWin: false,
+}
 
 // Called when game loads 
 function init() {
@@ -36,11 +44,32 @@ function restart() {
     const elBoard = document.querySelector('.board')
     elBoard.innerHTML = ''
 
-    gGame = { isOn: false, isStart: false, alienCount: ALIEN_ROW_LENGTH * ALIEN_ROW_COUNT, score: 0 }
+    gGame = {
+        isOn: false,
+        isStart: false,
+        alienCount: ALIEN_ROW_LENGTH * ALIEN_ROW_COUNT,
+        score: 0,
+        isWin: false,
+    }
+    gHero = {
+        pos: { i: 12, j: 5 },
+        isShoot: false,
+        laserPos: { i: 11, j: 5 },
+        laserFast: false,
+        fastCount: 3
+    }
+
     firstAlien = /*gBoard.length - ALIEN_ROW_LENGTH*/ 6
     lastAlien = /*gBoard.length - 1*/13
     unHit = false
     gDir = 'left'
+
+    gIsAlienFreeze = false
+
+    clearTimeout(gTimeoutCandy)
+    clearTimeout(gTimeoutFreeze)
+    clearInterval(gIntervalAliens)
+    clearInterval(gIntervalCandy)
 
     init()
     playGame()
@@ -153,7 +182,10 @@ function addCandy() {
     const cellPos = getRandomEmptyCellPosition(1, gBoard.length)
 
     updateCell(cellPos, CANDY, true)
-    setTimeout(updateCell, 5000, cellPos)
+    gTimeoutCandy = setTimeout((pos) => {
+        const cell = gBoard[pos.i][pos.j]
+        if (cell.gameObject === CANDY) updateCell(pos)
+    }, 5000, cellPos)
 }
 
 function handleCandyHit(pos) {
@@ -170,5 +202,5 @@ function handleCandyHit(pos) {
     console.log('score', gGame.score)
 
     gIsAlienFreeze = true
-    setTimeout(() => { gIsAlienFreeze = false }, 5000)
+    gTimeoutFreeze = setTimeout(() => { gIsAlienFreeze = false }, 5000)
 }
